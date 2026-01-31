@@ -1,14 +1,39 @@
 # 🐙 OctoSodales
 
-**An 8-agent AI tutoring system that adapts to how you learn.**
+**A universal adaptive learning platform powered by 8 AI agents.**
 
-OctoSodales uses a hierarchical multi-agent architecture with human-in-the-loop feedback to teach programming. Four primary agents (Curriculum, Teacher, Challenger, Reviewer) handle instruction, while four coaching agents observe learner performance and dynamically adjust teaching strategies—essentially RLHF applied to education.
+Tell it what you want to learn. It builds you a personalized curriculum and adapts in real-time based on your performance.
+
+> *"Teach me Rust."*  
+> *"I want to get better at LeetCode."*  
+> *"Help me understand systems design."*  
+> *"I need to learn how to build AI applications."*
+
+OctoSodales handles all of it—same architecture, any domain.
+
+## Current Status
+
+**Prototype**: Python curriculum (14 projects, CLI tools → full-stack deployment)  
+**Dogfooding**: Using the system to teach myself, validating the methodology  
+**Next**: Expand to Rust, Java, Assembly, LeetCode, systems design, AI/ML
+
+## The Vision
+
+Most learning platforms are static. Same content, same order, same pace for everyone.
+
+OctoSodales is different:
+- **You define the goal** → "I want to pass system design interviews"
+- **Agents build your curriculum** → Based on your current level, time available, learning style
+- **You learn by doing** → Challenges, not lectures
+- **System adapts to you** → Struggling? Smaller chunks. Breezing through? Harder problems.
+
+The 8-agent architecture makes this possible.
 
 ## Architecture
 
 ```
                     ┌─────────────────┐
-                    │     COUNCIL     │  (Future: approval layer)
+                    │     COUNCIL     │  (Approves curriculum changes)
                     └────────┬────────┘
                              │
               ┌──────────────┴──────────────┐
@@ -34,85 +59,107 @@ OctoSodales uses a hierarchical multi-agent architecture with human-in-the-loop 
                     └─────────────────┘
 ```
 
-## How It Works
-
 ### Primary Agents
 
-| Agent | Model | Role |
-|-------|-------|------|
-| **Curriculum** | Opus | Strategic decisions—assesses progress, identifies skill gaps, determines when to advance |
-| **Teacher** | Sonnet | Delivers lessons using SAY→SEE→DO methodology with production-quality code examples |
-| **Challenger** | Sonnet | Assigns tasks calibrated to skill level; reads your code to build on what exists |
-| **Reviewer** | Sonnet | Code review with verdicts: `ship_it`, `needs_work`, `major_issues` |
+| Agent | Role |
+|-------|------|
+| **Curriculum** | Builds personalized learning path based on goals, skill level, time, learning style |
+| **Teacher** | Delivers lessons—SAY (concept) → SEE (example) → DO (micro-steps) |
+| **Challenger** | Assigns tasks calibrated to current ability; reads your work to build on what exists |
+| **Reviewer** | Grades submissions; gates advancement until quality bar is met |
 
 ### Coaching Layer (The RLHF Loop)
 
-Each primary agent has a dedicated coach that observes learner performance and injects behavioral directives:
+Each primary agent has a coach observing learner performance:
 
 | Coach | Observes | Adjusts |
 |-------|----------|---------|
-| **Curriculum Coach** | Pacing, skill gaps, time-on-project | Path difficulty, project sequencing |
-| **Teacher Coach** | Whether lessons land (recurring mistakes) | Explanation depth, teaching style |
-| **Challenger Coach** | Task completion rate, frustration signals | Task difficulty, scaffolding level |
-| **Reviewer Coach** | Feedback effectiveness, improvement trends | Review strictness, focus areas |
+| **Curriculum Coach** | Pacing, skill gaps, time-on-topic | Path difficulty, sequencing |
+| **Teacher Coach** | Whether lessons stick (recurring mistakes) | Explanation depth, teaching style |
+| **Challenger Coach** | Completion rate, frustration signals | Task difficulty, scaffolding |
+| **Reviewer Coach** | Feedback effectiveness, improvement trends | Strictness, focus areas |
 
 **The feedback loop:**
-1. Learner attempts tasks → Reviewer grades code
-2. Performance data accumulates (pass/fail, recurring issues, time spent)
-3. Coaches analyze patterns and generate directives
-4. Directives inject into agent system prompts
-5. Agents adapt their behavior
+1. Learner attempts challenges → Reviewer grades work
+2. Performance data accumulates (pass/fail, patterns, time)
+3. Coaches analyze and generate directives
+4. Directives inject into agent prompts
+5. Agents adapt behavior
 6. Learner experiences personalized instruction
 
-This is RLHF where learner outcomes optimize teaching agents.
+This is **RLHF applied to education**—learner outcomes are the reward signal that optimizes teaching agents.
 
-### Adaptive Features
+### Council Layer (Planned)
 
-- **Auto-coaching**: Runs every 3 reviews automatically
-- **Issue reporting**: Learner can flag problems → routed to coaches for analysis
-- **Learning preferences**: Configure task size, explanation depth, pace
-- **Project context**: Agents see your actual code (no copy/paste)
-- **Modern standards**: Enforces Click/Typer, pathlib, pytest, type hints
+Coaches propose curriculum changes → Council approves/rejects → Changes propagate down.
 
-## Curriculum
+Adds governance to prevent oscillation and ensures coherent learning paths.
 
-14 projects building toward a capstone:
+## How Onboarding Works (Full Version)
+
+```
+1. What do you want to learn?
+   → "Rust programming"
+
+2. What's your current level?
+   → "I know Python, never touched Rust"
+
+3. Do you have a target project or goal?
+   → "Build a CLI tool and understand ownership"
+
+4. How do you learn best?
+   → "Show me code first, explain after"
+
+5. How many hours per week?
+   → "10 hours"
+
+    ↓ Curriculum Agent (Opus) generates personalized path ↓
+
+6. Your curriculum:
+   - Week 1-2: Ownership & borrowing (small exercises)
+   - Week 3-4: Error handling, Option/Result
+   - Week 5-6: CLI with clap, file I/O
+   - Week 7-8: Your CLI project
+   
+   Adapts as you go.
+```
+
+## Prototype: Python Curriculum
+
+Currently validating the system with a 14-project Python path:
 
 ```
 FOUNDATION (1-3)
 ├── CLI File Processor      → Project structure, error handling
-├── Async Data Fetcher      → asyncio, rate limiting, retries
-└── Config & Secrets        → Pydantic, environment variables
+├── Async Data Fetcher      → asyncio, rate limiting
+└── Config & Secrets        → Pydantic, env vars
 
 LLM TOOLING (4-6)
-├── Universal LLM Client    → Provider abstraction, streaming
+├── Universal LLM Client    → Provider abstraction
 ├── Structured Outputs      → Force valid JSON from LLMs
-└── Prompt Manager          → Versioning, testing prompts
+└── Prompt Manager          → Versioning, testing
 
 EVAL SYSTEMS (7-9)
 ├── Simple Eval Runner      → Batch processing, caching
-├── LLM-as-Judge            → Rubrics, position bias mitigation
-└── Multi-Agent Debate      → Agent orchestration, iterative refinement
+├── LLM-as-Judge            → Rubrics, bias mitigation
+└── Multi-Agent Debate      → Agent orchestration
 
 WEB & DEPLOYMENT (10-13)
-├── FastAPI Backend         → REST API, WebSockets
-├── Database & Auth         → SQLAlchemy, JWT, row-level security
-├── React Frontend          → TypeScript, auth flow
-└── Deployment              → Docker, CI/CD, cloud hosting
+├── FastAPI Backend
+├── Database & Auth
+├── React Frontend
+└── Deployment (Docker, CI/CD)
 
 CAPSTONE (14)
-└── Adaptive Learning Platform → Rebuild OctoSodales itself
+└── Rebuild OctoSodales
 ```
 
-## Usage
+## Usage (Prototype)
 
 ```bash
-# Run from your project directory
 cd your-project
 python /path/to/OctoSodales.py
 ```
-
-### Commands
 
 | Key | Action |
 |-----|--------|
@@ -120,28 +167,33 @@ python /path/to/OctoSodales.py
 | `3` | Learn a concept |
 | `r` | Review your code |
 | `c` | Chat about your code |
-| `t` | Run pytest |
-| `m` | Run mypy |
 | `!` | Report issue to coaches |
-| `done` | Complete project (requires passing review) |
+| `done` | Complete project |
 
-### Quality Gates
+## Roadmap
 
-You cannot advance until:
-- Code passes review (`ship_it` verdict)
-- At least one task completed
-- Reviewer confirms production requirements met
-
-## Tech Stack
-
-- **LLM**: Anthropic Claude (Opus for strategic agents, Sonnet for execution)
-- **State**: JSON file persistence
-- **Code Access**: Direct filesystem reading, subprocess for tests/linting
-- **CLI**: Interactive Python REPL
+- [x] 8-agent architecture with coaching layer
+- [x] Python curriculum (14 projects)
+- [x] Adaptive difficulty and pacing
+- [x] File system integration (agents see your code)
+- [ ] Domain-agnostic onboarding
+- [ ] Rust curriculum
+- [ ] LeetCode/DSA track
+- [ ] Systems design track
+- [ ] Web UI
+- [ ] Multi-user deployment
 
 ## The Meta-Story
 
-I built OctoSodales to teach myself Python. The system I used to learn is the system I'm rebuilding as the capstone. "I built OctoSodales to teach me how to build OctoSodales."
+I'm using OctoSodales to teach myself how to build OctoSodales.
+
+The capstone project is rebuilding the system that taught me. If it can teach me to build itself, it can teach anyone anything.
+
+## Tech Stack
+
+- **LLM**: Anthropic Claude (Opus for strategic, Sonnet for execution)
+- **State**: JSON persistence
+- **Code Access**: Direct filesystem, subprocess for tests/linting
 
 ## License
 
